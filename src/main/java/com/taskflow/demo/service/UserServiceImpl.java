@@ -11,8 +11,6 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService{
 
-    //@Autowired
-    //private UserRepository userRepository;
 
     private final UserRepository userRepository;
 
@@ -26,8 +24,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public User getUserById(Long id) {
+            return userRepository.findById(id).orElseThrow( () -> new RuntimeException("User not found with id: " + id));
     }
 
     @Override

@@ -8,10 +8,10 @@ import jakarta.persistence.Table;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Table(name = "users")
     private Long id;
 
     private String name;

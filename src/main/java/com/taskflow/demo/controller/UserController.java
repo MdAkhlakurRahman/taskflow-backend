@@ -3,6 +3,7 @@ package com.taskflow.demo.controller;
 import com.taskflow.demo.dto.UserRequestDTO;
 import com.taskflow.demo.dto.UserResponseDTO;
 import com.taskflow.demo.entity.User;
+import com.taskflow.demo.mapper.UserMapper;
 import com.taskflow.demo.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +22,8 @@ public class UserController {
 
     @PostMapping
     public UserResponseDTO createUser(@RequestBody UserRequestDTO userRequestDTO){
-        //DTO -> entity
-        User user=new User(userRequestDTO.name(),userRequestDTO.email());
-        User createdUser =userService.createUser(user);
-        return new UserResponseDTO(createdUser.getId(), createdUser.getName(), createdUser.getEmail());
+        User user= UserMapper.userRequestDTOToUser(userRequestDTO);
+        return UserMapper.userToResponseDTO(userService.createUser(user));
     }
 
     @GetMapping
@@ -34,8 +33,7 @@ public class UserController {
         List<UserResponseDTO> userResponseDTO= new ArrayList<>();
 
         for(User user: userlist){
-            UserResponseDTO createdUserResponseDTO=new UserResponseDTO(user.getId(), user.getName(),user.getEmail());
-            userResponseDTO.add(createdUserResponseDTO);
+            userResponseDTO.add(UserMapper.userToResponseDTO(user));
         }
         return userResponseDTO;
     }
@@ -43,17 +41,13 @@ public class UserController {
     @GetMapping("/{id}")
     public UserResponseDTO getUserById(@PathVariable Long id){
         User user= userService.getUserById(id);
-        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail());
+        return UserMapper.userToResponseDTO(user);
     }
 
     @PutMapping("/{id}")
     public UserResponseDTO updateUser(@PathVariable Long id, @RequestBody UserRequestDTO userRequestDTO){
-        //DTO to entity
-        User user = new User(userRequestDTO.name(),userRequestDTO.email());
-        User updatedUser = userService.updateUser(id, user);
-
-        //Entity to DTO
-        return new UserResponseDTO(updatedUser.getId(), updatedUser.getName(), updatedUser.getEmail());
+        User updatedUser = userService.updateUser(id, UserMapper.userRequestDTOToUser(userRequestDTO));
+        return UserMapper.userToResponseDTO(updatedUser);
     }
 
     @DeleteMapping("/{id}")

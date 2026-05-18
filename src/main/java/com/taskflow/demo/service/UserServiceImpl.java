@@ -1,12 +1,11 @@
 package com.taskflow.demo.service;
 
 import com.taskflow.demo.entity.User;
+import com.taskflow.demo.exception.UserNotFoundException;
 import com.taskflow.demo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -25,7 +24,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User getUserById(Long id) {
-            return userRepository.findById(id).orElseThrow( () -> new RuntimeException("User not found with id: " + id));
+            return userRepository.findById(id).orElseThrow( () -> new UserNotFoundException("User not found with id: " + id));
     }
 
     @Override
@@ -36,7 +35,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public User updateUser(Long id, User user) {
         User existingUser = userRepository.findById(id)
-                                        .orElseThrow(() -> new RuntimeException("User not found"));
+                                        .orElseThrow(() -> new UserNotFoundException("User not found id:" + id));
         existingUser.setName(user.getName());
         existingUser.setEmail(user.getEmail());
         return userRepository.save(existingUser);
@@ -44,7 +43,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found id:" + id));
         userRepository.delete(user);
     }
 }

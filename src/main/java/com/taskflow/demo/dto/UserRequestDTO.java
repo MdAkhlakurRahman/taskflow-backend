@@ -1,5 +1,8 @@
 package com.taskflow.demo.dto;
 
-public record UserRequestDTO(String name,String email) {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+public record UserRequestDTO(@NotBlank(message = "Name can not be blank") String name, @NotBlank(message = "Email cant be blank") @Email(message = "Enter valid email") String email) {
 
 }

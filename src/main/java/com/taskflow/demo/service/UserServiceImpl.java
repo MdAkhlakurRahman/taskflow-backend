@@ -3,9 +3,11 @@ package com.taskflow.demo.service;
 import com.taskflow.demo.entity.User;
 import com.taskflow.demo.exception.UserNotFoundException;
 import com.taskflow.demo.repository.UserRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -28,8 +30,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
     @Override

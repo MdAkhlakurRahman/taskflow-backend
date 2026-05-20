@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -37,6 +38,15 @@ public class GlobalExceptionHandler {
             }
             errorResponse.get(fieldName).add(message);
         });
+        return errorResponse;
+    }
+
+    @ExceptionHandler(InvalidPageSizeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String,String> invalidPageSizeException(InvalidPageSizeException e){
+        Map<String,String> errorResponse = new HashMap<>();
+        errorResponse.put("message",e.getMessage());
+        errorResponse.put("timestamp", LocalDateTime.now().toString());
         return errorResponse;
     }
 }

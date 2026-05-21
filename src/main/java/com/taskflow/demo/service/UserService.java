@@ -1,14 +1,14 @@
 package com.taskflow.demo.service;
 
 import com.taskflow.demo.entity.User;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
     User createUser(User user);
     User getUserById(Long id);
-    List<User> getAllUsers();
+    Page<User> getAllUsers(Pageable pageable);
     User updateUser(Long id, User user);
     void deleteUser(Long id);
 }

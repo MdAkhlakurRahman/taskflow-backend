@@ -3,25 +3,32 @@ package com.taskflow.demo.controller;
 import com.taskflow.demo.dto.UserRequestDTO;
 import com.taskflow.demo.dto.UserResponseDTO;
 import com.taskflow.demo.entity.User;
+import com.taskflow.demo.helper.PaginationHelper;
 import com.taskflow.demo.mapper.UserMapper;
 import com.taskflow.demo.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+
 
 @RestController
 @Validated
 @RequestMapping("/api/users")
 public class UserController {
 
+
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    private final PaginationHelper paginationHelper;
+
+    public UserController(UserService userService , PaginationHelper paginationHelper) {
         this.userService = userService;
+        this.paginationHelper=paginationHelper;
     }
 
     @PostMapping
@@ -31,16 +38,18 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserResponseDTO> getAllUsers(){
+    public Page<UserResponseDTO> getAllUsers(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
+                                             @RequestParam(required = false) @Positive Integer size,
+                                             @RequestParam(required = false) String sortBy,
+                                             @RequestParam(defaultValue = "asc") String sortDir){
 
-        List<User> userlist= userService.getAllUsers();
-        List<UserResponseDTO> userResponseDTO= new ArrayList<>();
 
-        for(User user: userlist){
-            userResponseDTO.add(UserMapper.userToResponseDTO(user));
-        }
-        return userResponseDTO;
+        Pageable pageable = paginationHelper.buildPageable(page,size,sortBy,sortDir);
+        // Fetch paginated users
+        Page<User> users= userService.getAllUsers(pageable);
+        return users.map(UserMapper::userToResponseDTO);
     }
+
 
     @GetMapping("/{id}")
     public UserResponseDTO getUserById(@PathVariable @Positive Long id){

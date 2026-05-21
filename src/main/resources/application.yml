@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: demo
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskflowdb
+    username: mdakhlakurrahman
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  pagination:
+    default-page-size: 20
+    max-page-size: 100
+    sort-by: id

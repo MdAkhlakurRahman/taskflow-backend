@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 @RequestMapping("/api/users")
 public class UserController {
 
-
     private final UserService userService;
 
     private final PaginationHelper paginationHelper;
@@ -41,15 +40,14 @@ public class UserController {
     public Page<UserResponseDTO> getAllUsers(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
                                              @RequestParam(required = false) @Positive Integer size,
                                              @RequestParam(required = false) String sortBy,
-                                             @RequestParam(defaultValue = "asc") String sortDir){
-
+                                             @RequestParam(defaultValue = "asc") String sortDir,
+                                             @RequestParam(required = false) String search){
 
         Pageable pageable = paginationHelper.buildPageable(page,size,sortBy,sortDir);
-        // Fetch paginated users
-        Page<User> users= userService.getAllUsers(pageable);
-        return users.map(UserMapper::userToResponseDTO);
-    }
 
+        Page<User> users= userService.getAllUsers(pageable, search);
+        return users.map(UserMapper::userToResponseDTO);
+        }
 
     @GetMapping("/{id}")
     public UserResponseDTO getUserById(@PathVariable @Positive Long id){

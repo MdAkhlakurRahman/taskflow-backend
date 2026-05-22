@@ -30,8 +30,13 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Page<User> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    public Page<User> getAllUsers(Pageable pageable,String search) {
+        if(search==null || search.isBlank()){
+            return userRepository.findAll(pageable);
+        }
+        else {
+            return userRepository.findByNameContainingIgnoreCase(search,pageable);
+        }
     }
 
     @Override

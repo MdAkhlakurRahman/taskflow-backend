@@ -4,11 +4,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "users")
+@SQLDelete(sql = "UPDATE users SET deleted=true WHERE id=? ")
+@Where(clause = "deleted=false")
 public class User {
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -17,7 +21,12 @@ public class User {
     private String name;
     private String email;
 
-    //CONSTRUCTORS
+    private boolean deleted = Boolean.FALSE;
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+//CONSTRUCTORS
 
     public User() {
     }

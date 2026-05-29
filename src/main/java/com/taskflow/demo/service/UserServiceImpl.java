@@ -2,6 +2,7 @@ package com.taskflow.demo.service;
 
 import com.taskflow.demo.entity.User;
 import com.taskflow.demo.exception.UserNotFoundException;
+import com.taskflow.demo.projection.UserLightweightProjection;
 import com.taskflow.demo.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -30,14 +31,48 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Page<User> getAllUsers(Pageable pageable,String search) {
-        if(search==null || search.isBlank()){
+    public Page<User> getAllUsers(Pageable pageable,String search,String searchDomain) {
+        boolean hasSearch = search != null && !search.isBlank();
+        boolean hasDomain = searchDomain != null && !searchDomain.isBlank();
+
+        if(hasSearch && hasDomain){
+            return userRepository.findUsersByDomainAndName(search,searchDomain,pageable);
+        }
+        else if(!hasSearch && !hasDomain) {
             return userRepository.findAll(pageable);
         }
-        else {
+        else if(hasSearch){
             return userRepository.findByNameContainingIgnoreCase(search,pageable);
         }
+        else {
+            return userRepository.findUsersByDomain(searchDomain,pageable);
+        }
     }
+
+
+
+
+
+    @Override
+    public Page<UserLightweightProjection> getAllLightUsers(Pageable pageable, String search, String searchDomain) {
+       return userRepository.findLightUsers(pageable,search,searchDomain);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public User updateUser(Long id, User user) {

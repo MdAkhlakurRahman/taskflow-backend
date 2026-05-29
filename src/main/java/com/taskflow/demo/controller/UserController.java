@@ -5,6 +5,7 @@ import com.taskflow.demo.dto.UserResponseDTO;
 import com.taskflow.demo.entity.User;
 import com.taskflow.demo.helper.PaginationHelper;
 import com.taskflow.demo.mapper.UserMapper;
+import com.taskflow.demo.projection.UserLightweightProjection;
 import com.taskflow.demo.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -41,13 +42,49 @@ public class UserController {
                                              @RequestParam(required = false) @Positive Integer size,
                                              @RequestParam(required = false) String sortBy,
                                              @RequestParam(defaultValue = "asc") String sortDir,
-                                             @RequestParam(required = false) String search){
+                                             @RequestParam(required = false) String search,
+                                             @RequestParam(required = false) String searchDomain){
 
         Pageable pageable = paginationHelper.buildPageable(page,size,sortBy,sortDir);
 
-        Page<User> users= userService.getAllUsers(pageable, search);
+        Page<User> users= userService.getAllUsers(pageable, search, searchDomain);
         return users.map(UserMapper::userToResponseDTO);
-        }
+    }
+
+
+
+
+
+
+
+
+
+    @GetMapping("/lightweight")
+    public Page<UserLightweightProjection> getAllUsers(@RequestParam(required = false) Pageable pageable,
+                                                       @RequestParam(required = false) String search,
+                                                       @RequestParam(required = false) String searchDomain){
+        return userService.getAllLightUsers(pageable,search,searchDomain);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @GetMapping("/{id}")
     public UserResponseDTO getUserById(@PathVariable @Positive Long id){

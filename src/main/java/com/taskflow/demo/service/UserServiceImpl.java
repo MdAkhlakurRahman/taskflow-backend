@@ -4,12 +4,15 @@ import com.taskflow.demo.entity.User;
 import com.taskflow.demo.exception.UserNotFoundException;
 import com.taskflow.demo.projection.UserLightweightProjection;
 import com.taskflow.demo.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 
 import org.springframework.data.domain.Pageable;
 
+
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService{
 
@@ -22,12 +25,18 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User createUser(User user) {
-        return userRepository.save(user);
+        User userCreated = userRepository.save(user);
+        log.info("User created with id {}",userCreated.getId());
+            return userCreated;
     }
 
     @Override
     public User getUserById(Long id) {
-            return userRepository.findById(id).orElseThrow( () -> new UserNotFoundException("User not found with id: " + id));
+        return userRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("User lookup failed. User id={} not found", id);
+                    return new UserNotFoundException("User not found with id: " + id);
+                });
     }
 
     @Override
@@ -50,42 +59,32 @@ public class UserServiceImpl implements UserService{
     }
 
 
-
-
-
     @Override
     public Page<UserLightweightProjection> getAllLightUsers(Pageable pageable, String search, String searchDomain) {
        return userRepository.findLightUsers(pageable,search,searchDomain);
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public User updateUser(Long id, User user) {
         User existingUser = userRepository.findById(id)
-                                        .orElseThrow(() -> new UserNotFoundException("User not found id:" + id));
+                                        .orElseThrow(() ->{
+                                            log.warn("User update failed. User id={} not found", id);
+                                            return new UserNotFoundException("User not found id:" + id);});
         existingUser.setName(user.getName());
         existingUser.setEmail(user.getEmail());
-        return userRepository.save(existingUser);
+        User updatedUser =  userRepository.save(existingUser);
+        log.info("User updated with User id ={}",id);
+        return updatedUser;
     }
 
     @Override
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found id:" + id));
+        User user = userRepository.findById(id).orElseThrow(() ->{
+            log.warn("User delete failed. User id={} not found",id);
+            return new UserNotFoundException("User Not Found id:" + id);
+        } );
         userRepository.delete(user);
+        log.info("User deleted with User id={}",id);
     }
 }

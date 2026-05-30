@@ -52,37 +52,12 @@ public class UserController {
     }
 
 
-
-
-
-
-
-
-
     @GetMapping("/lightweight")
     public Page<UserLightweightProjection> getAllUsers(@RequestParam(required = false) Pageable pageable,
                                                        @RequestParam(required = false) String search,
                                                        @RequestParam(required = false) String searchDomain){
         return userService.getAllLightUsers(pageable,search,searchDomain);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

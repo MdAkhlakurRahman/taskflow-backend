@@ -1,5 +1,6 @@
 package com.taskflow.demo.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,11 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleUserNotFoundException(UserNotFoundException e) {
+        log.warn(e.getMessage() );
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("message", e.getMessage());
         errorResponse.put("timestamp", LocalDateTime.now().toString());
@@ -56,6 +59,19 @@ public class GlobalExceptionHandler {
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("message", e.getMessage());
         errorResponse.put("timestamp", LocalDateTime.now().toString());
+        return errorResponse;
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleAllExceptions(Exception e) {
+
+        log.error("Unexpected exception occurred", e);
+
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", "An unexpected error occurred");
+        errorResponse.put("timestamp", LocalDateTime.now().toString());
+
         return errorResponse;
     }
 

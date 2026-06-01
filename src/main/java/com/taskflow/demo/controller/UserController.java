@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,13 +34,14 @@ public class UserController {
     }
 
     @PostMapping
-    public UserResponseDTO createUser(@RequestBody @Valid UserRequestDTO userRequestDTO){
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO userRequestDTO){
         User user= UserMapper.userRequestDTOToUser(userRequestDTO);
-        return UserMapper.userToResponseDTO(userService.createUser(user));
+        UserResponseDTO userResponseDTO = UserMapper.userToResponseDTO(userService.createUser(user));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
     }
 
     @GetMapping
-    public Page<UserResponseDTO> getAllUsers(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
+    public ResponseEntity<Page<UserResponseDTO>> getAllUsers(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
                                              @RequestParam(required = false) @Positive Integer size,
                                              @RequestParam(required = false) String sortBy,
                                              @RequestParam(defaultValue = "asc") String sortDir,
@@ -48,34 +51,34 @@ public class UserController {
         Pageable pageable = paginationHelper.buildPageable(page,size,sortBy,sortDir);
 
         Page<User> users= userService.getAllUsers(pageable, search, searchDomain);
-        return users.map(UserMapper::userToResponseDTO);
+        return ResponseEntity.ok(users.map(UserMapper::userToResponseDTO));
     }
 
 
     @GetMapping("/lightweight")
-    public Page<UserLightweightProjection> getAllUsers(@RequestParam(required = false) Pageable pageable,
+    public ResponseEntity<Page<UserLightweightProjection>> getAllUsers(@RequestParam(required = false) Pageable pageable,
                                                        @RequestParam(required = false) String search,
                                                        @RequestParam(required = false) String searchDomain){
-        return userService.getAllLightUsers(pageable,search,searchDomain);
+        return ResponseEntity.ok(userService.getAllLightUsers(pageable,search,searchDomain));
     }
 
 
 
     @GetMapping("/{id}")
-    public UserResponseDTO getUserById(@PathVariable @Positive Long id){
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable @Positive Long id){
         User user= userService.getUserById(id);
-        return UserMapper.userToResponseDTO(user);
+        return ResponseEntity.ok(UserMapper.userToResponseDTO(user));
     }
 
     @PutMapping("/{id}")
-    public UserResponseDTO updateUser(@PathVariable @Positive Long id, @RequestBody @Valid UserRequestDTO userRequestDTO){
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable @Positive Long id, @RequestBody @Valid UserRequestDTO userRequestDTO){
         User updatedUser = userService.updateUser(id, UserMapper.userRequestDTOToUser(userRequestDTO));
-        return UserMapper.userToResponseDTO(updatedUser);
+        return ResponseEntity.ok(UserMapper.userToResponseDTO(updatedUser));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable @Positive Long id){
-        userService.deleteUser(id);
-    }
-
+    public ResponseEntity<Void> deleteUser(@PathVariable @Positive Long id){
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        }
 }

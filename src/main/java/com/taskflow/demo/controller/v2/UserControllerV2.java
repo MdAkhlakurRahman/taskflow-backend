@@ -1,7 +1,7 @@
-package com.taskflow.demo.controller;
+package com.taskflow.demo.controller.v2;
 
 import com.taskflow.demo.dto.UserRequestDTO;
-import com.taskflow.demo.dto.UserResponseDTO;
+import com.taskflow.demo.dto.v2.UserResponseDTO;
 import com.taskflow.demo.entity.User;
 import com.taskflow.demo.helper.PaginationHelper;
 import com.taskflow.demo.mapper.UserMapper;
@@ -21,44 +21,44 @@ import org.springframework.data.domain.Pageable;
 
 @RestController
 @Validated
-@RequestMapping("/api/users")
-public class UserController {
+@RequestMapping("/api/v2/users")
+public class UserControllerV2 {
 
     private final UserService userService;
 
     private final PaginationHelper paginationHelper;
 
-    public UserController(UserService userService , PaginationHelper paginationHelper) {
+    public UserControllerV2(UserService userService , PaginationHelper paginationHelper) {
         this.userService = userService;
         this.paginationHelper=paginationHelper;
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO userRequestDTO){
+    public ResponseEntity<com.taskflow.demo.dto.v2.UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO userRequestDTO){
         User user= UserMapper.userRequestDTOToUser(userRequestDTO);
-        UserResponseDTO userResponseDTO = UserMapper.userToResponseDTO(userService.createUser(user));
+        com.taskflow.demo.dto.v2.UserResponseDTO userResponseDTO = UserMapper.userToResponseDTOV2(userService.createUser(user));
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
     }
 
     @GetMapping
     public ResponseEntity<Page<UserResponseDTO>> getAllUsers(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
-                                             @RequestParam(required = false) @Positive Integer size,
-                                             @RequestParam(required = false) String sortBy,
-                                             @RequestParam(defaultValue = "asc") String sortDir,
-                                             @RequestParam(required = false) String search,
-                                             @RequestParam(required = false) String searchDomain){
+                                                             @RequestParam(required = false) @Positive Integer size,
+                                                             @RequestParam(required = false) String sortBy,
+                                                             @RequestParam(defaultValue = "asc") String sortDir,
+                                                             @RequestParam(required = false) String search,
+                                                             @RequestParam(required = false) String searchDomain){
 
         Pageable pageable = paginationHelper.buildPageable(page,size,sortBy,sortDir);
 
         Page<User> users= userService.getAllUsers(pageable, search, searchDomain);
-        return ResponseEntity.ok(users.map(UserMapper::userToResponseDTO));
+        return ResponseEntity.ok(users.map(UserMapper::userToResponseDTOV2));
     }
 
 
     @GetMapping("/lightweight")
     public ResponseEntity<Page<UserLightweightProjection>> getAllUsers(@RequestParam(required = false) Pageable pageable,
-                                                       @RequestParam(required = false) String search,
-                                                       @RequestParam(required = false) String searchDomain){
+                                                                       @RequestParam(required = false) String search,
+                                                                       @RequestParam(required = false) String searchDomain){
         return ResponseEntity.ok(userService.getAllLightUsers(pageable,search,searchDomain));
     }
 
@@ -67,18 +67,18 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable @Positive Long id){
         User user= userService.getUserById(id);
-        return ResponseEntity.ok(UserMapper.userToResponseDTO(user));
+        return ResponseEntity.ok(UserMapper.userToResponseDTOV2(user));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable @Positive Long id, @RequestBody @Valid UserRequestDTO userRequestDTO){
         User updatedUser = userService.updateUser(id, UserMapper.userRequestDTOToUser(userRequestDTO));
-        return ResponseEntity.ok(UserMapper.userToResponseDTO(updatedUser));
+        return ResponseEntity.ok(UserMapper.userToResponseDTOV2(updatedUser));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable @Positive Long id){
-            userService.deleteUser(id);
-            return ResponseEntity.noContent().build();
-        }
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }

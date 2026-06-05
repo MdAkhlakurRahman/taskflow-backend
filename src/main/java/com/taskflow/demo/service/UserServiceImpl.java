@@ -1,8 +1,11 @@
 package com.taskflow.demo.service;
 
+import com.taskflow.demo.entity.AuditEvent;
 import com.taskflow.demo.entity.User;
+import com.taskflow.demo.enums.ActionTaken;
 import com.taskflow.demo.exception.UserNotFoundException;
 import com.taskflow.demo.projection.UserLightweightProjection;
+import com.taskflow.demo.repository.AuditEventRepository;
 import com.taskflow.demo.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -10,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 
 @Slf4j
@@ -18,17 +24,20 @@ public class UserServiceImpl implements UserService{
 
 
     private final UserRepository userRepository;
+    private final AuditEventRepository auditEventRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository,AuditEventRepository auditEventRepository) {
         this.userRepository = userRepository;
+        this.auditEventRepository=auditEventRepository;
     }
 
-    @Override
-    public User createUser(User user) {
-        User userCreated = userRepository.save(user);
-        log.info("User created with id {}",userCreated.getId());
-            return userCreated;
-    }
+
+//    @Override
+//    public User createUser(User user) {
+//        User userCreated = userRepository.save(user);
+//        log.info("User created with id {}",userCreated.getId());
+//            return userCreated;
+//    }
 
     @Override
     public User getUserById(Long id) {
@@ -86,5 +95,17 @@ public class UserServiceImpl implements UserService{
         } );
         userRepository.delete(user);
         log.info("User deleted with User id={}",id);
+    }
+
+    @Transactional
+    @Override
+    public User onboardUser(User user) {
+            User userCreated = userRepository.save(user);
+            log.info("User created with id {}",userCreated.getId());
+
+            AuditEvent auditEvent= new AuditEvent(ActionTaken.USER_CREATED,userCreated.getId(),LocalDateTime.now());
+            auditEventRepository.save(auditEvent);
+
+            throw new RuntimeException("Boom");
     }
 }

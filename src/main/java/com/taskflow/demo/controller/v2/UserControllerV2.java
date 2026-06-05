@@ -36,7 +36,7 @@ public class UserControllerV2 {
     @PostMapping
     public ResponseEntity<com.taskflow.demo.dto.v2.UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO userRequestDTO){
         User user= UserMapper.userRequestDTOToUser(userRequestDTO);
-        com.taskflow.demo.dto.v2.UserResponseDTO userResponseDTO = UserMapper.userToResponseDTOV2(userService.createUser(user));
+        com.taskflow.demo.dto.v2.UserResponseDTO userResponseDTO = UserMapper.userToResponseDTOV2(userService.onboardUser(user));
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
     }
 

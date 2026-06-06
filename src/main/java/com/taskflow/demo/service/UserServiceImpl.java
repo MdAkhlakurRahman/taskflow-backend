@@ -106,6 +106,6 @@ public class UserServiceImpl implements UserService{
             AuditEvent auditEvent= new AuditEvent(ActionTaken.USER_CREATED,userCreated.getId(),LocalDateTime.now());
             auditEventRepository.save(auditEvent);
 
-            throw new RuntimeException("Boom");
+            return userCreated;
     }
 }

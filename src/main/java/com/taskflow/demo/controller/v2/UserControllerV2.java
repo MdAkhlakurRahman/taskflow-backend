@@ -1,11 +1,17 @@
 package com.taskflow.demo.controller.v2;
 
+import com.taskflow.demo.api.ApiResponse;
+import com.taskflow.demo.dto.TaskRequestDTO;
+import com.taskflow.demo.dto.TaskResponseDTO;
 import com.taskflow.demo.dto.UserRequestDTO;
 import com.taskflow.demo.dto.v2.UserResponseDTO;
+import com.taskflow.demo.entity.Task;
 import com.taskflow.demo.entity.User;
 import com.taskflow.demo.helper.PaginationHelper;
+import com.taskflow.demo.mapper.TaskMapper;
 import com.taskflow.demo.mapper.UserMapper;
 import com.taskflow.demo.projection.UserLightweightProjection;
+import com.taskflow.demo.service.TaskService;
 import com.taskflow.demo.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -18,6 +24,9 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @RestController
 @Validated
@@ -28,9 +37,12 @@ public class UserControllerV2 {
 
     private final PaginationHelper paginationHelper;
 
-    public UserControllerV2(UserService userService , PaginationHelper paginationHelper) {
+    private final TaskService taskService;
+
+    public UserControllerV2(UserService userService , PaginationHelper paginationHelper, TaskService taskService) {
         this.userService = userService;
         this.paginationHelper=paginationHelper;
+        this.taskService=taskService;
     }
 
     @PostMapping
@@ -80,5 +92,20 @@ public class UserControllerV2 {
     public ResponseEntity<Void> deleteUser(@PathVariable @Positive Long id){
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{userId}/tasks")
+    public ResponseEntity<ApiResponse<TaskResponseDTO>> createTask(@PathVariable @Positive Long userId, @RequestBody @Valid TaskRequestDTO taskRequestDTO){
+        TaskResponseDTO taskResponseDTO = TaskMapper.taskToTaskResponseDTO(taskService.createTaskForUser(userId,taskRequestDTO.title()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(taskResponseDTO,"Task Created Successfully"));
+    }
+
+    @GetMapping("/{userId}/tasks")
+    public ResponseEntity<ApiResponse<List<TaskResponseDTO>>> getAllTask(@PathVariable @Positive Long userId){
+        List<Task> tasks = taskService.getAllTasks(userId);
+        List<TaskResponseDTO> lists = new ArrayList<>();
+        for(Task task : tasks)
+            lists.add(TaskMapper.taskToTaskResponseDTO(task));
+        return ResponseEntity.ok(ApiResponse.success(lists));
     }
 }

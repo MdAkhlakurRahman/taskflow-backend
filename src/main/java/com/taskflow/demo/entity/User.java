@@ -1,14 +1,19 @@
 package com.taskflow.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.util.List;
+
 import static jakarta.persistence.GenerationType.IDENTITY;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 @SQLDelete(sql = "UPDATE users SET deleted=true WHERE id=? ")
@@ -23,34 +28,15 @@ public class User {
 
     private boolean deleted = Boolean.FALSE;
 
+    @OneToMany(mappedBy ="user")
+    private List<Task> tasks;
+
     public boolean isDeleted() {
         return deleted;
-    }
-//CONSTRUCTORS
-
-    public User() {
     }
 
     public User(String name, String email) {
         this.name = name;
-        this.email = email;
-    }
-
-
-    //getters and setters
-    public Long getId() {
-        return id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
         this.email = email;
     }
 }

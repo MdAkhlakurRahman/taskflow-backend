@@ -16,19 +16,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Slf4j
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
 
     private final UserRepository userRepository;
     private final AuditEventRepository auditEventRepository;
 
-    public UserServiceImpl(UserRepository userRepository,AuditEventRepository auditEventRepository) {
+    public UserServiceImpl(UserRepository userRepository, AuditEventRepository auditEventRepository) {
         this.userRepository = userRepository;
-        this.auditEventRepository=auditEventRepository;
+        this.auditEventRepository = auditEventRepository;
     }
 
 
@@ -49,63 +50,70 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Page<User> getAllUsers(Pageable pageable,String search,String searchDomain) {
+    public Page<User> getAllUsers(Pageable pageable, String search, String searchDomain) {
         boolean hasSearch = search != null && !search.isBlank();
         boolean hasDomain = searchDomain != null && !searchDomain.isBlank();
 
-        if(hasSearch && hasDomain){
-            return userRepository.findUsersByDomainAndName(search,searchDomain,pageable);
-        }
-        else if(!hasSearch && !hasDomain) {
+        if (hasSearch && hasDomain) {
+            return userRepository.findUsersByDomainAndName(search, searchDomain, pageable);
+        } else if (!hasSearch && !hasDomain) {
             return userRepository.findAll(pageable);
-        }
-        else if(hasSearch){
-            return userRepository.findByNameContainingIgnoreCase(search,pageable);
-        }
-        else {
-            return userRepository.findUsersByDomain(searchDomain,pageable);
+        } else if (hasSearch) {
+            return userRepository.findByNameContainingIgnoreCase(search, pageable);
+        } else {
+            return userRepository.findUsersByDomain(searchDomain, pageable);
         }
     }
 
 
     @Override
     public Page<UserLightweightProjection> getAllLightUsers(Pageable pageable, String search, String searchDomain) {
-       return userRepository.findLightUsers(pageable,search,searchDomain);
+        return userRepository.findLightUsers(pageable, search, searchDomain);
     }
 
 
     @Override
     public User updateUser(Long id, User user) {
         User existingUser = userRepository.findById(id)
-                                        .orElseThrow(() ->{
-                                            log.warn("User update failed. User id={} not found", id);
-                                            return new UserNotFoundException("User not found id:" + id);});
+                .orElseThrow(() -> {
+                    log.warn("User update failed. User id={} not found", id);
+                    return new UserNotFoundException("User not found id:" + id);
+                });
         existingUser.setName(user.getName());
         existingUser.setEmail(user.getEmail());
-        User updatedUser =  userRepository.save(existingUser);
-        log.info("User updated with User id ={}",id);
+        User updatedUser = userRepository.save(existingUser);
+        log.info("User updated with User id ={}", id);
         return updatedUser;
     }
 
     @Override
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() ->{
-            log.warn("User delete failed. User id={} not found",id);
+        User user = userRepository.findById(id).orElseThrow(() -> {
+            log.warn("User delete failed. User id={} not found", id);
             return new UserNotFoundException("User Not Found id:" + id);
-        } );
+        });
         userRepository.delete(user);
-        log.info("User deleted with User id={}",id);
+        log.info("User deleted with User id={}", id);
     }
 
     @Transactional
     @Override
     public User onboardUser(User user) {
-            User userCreated = userRepository.save(user);
-            log.info("User created with id {}",userCreated.getId());
+        User userCreated = userRepository.save(user);
+        log.info("User created with id {}", userCreated.getId());
 
-            AuditEvent auditEvent= new AuditEvent(ActionTaken.USER_CREATED,userCreated.getId(),LocalDateTime.now());
-            auditEventRepository.save(auditEvent);
+        AuditEvent auditEvent = new AuditEvent(ActionTaken.USER_CREATED, userCreated.getId(), LocalDateTime.now());
+        auditEventRepository.save(auditEvent);
 
-            return userCreated;
+        return userCreated;
+    }
+
+    @Transactional
+    public void getAllUsersTasks() {
+        List<User> users = userRepository.findAllTasks();
+
+        for (User user : users) {
+            user.getTasks().size();
+        }
     }
 }

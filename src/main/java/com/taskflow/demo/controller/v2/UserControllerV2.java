@@ -108,4 +108,10 @@ public class UserControllerV2 {
             lists.add(TaskMapper.taskToTaskResponseDTO(task));
         return ResponseEntity.ok(ApiResponse.success(lists));
     }
+
+    @GetMapping("/allTasks")
+    public ResponseEntity<Void> checkNplus(){
+        userService.getAllUsersTasks();
+        return ResponseEntity.noContent().build();
+    }
 }

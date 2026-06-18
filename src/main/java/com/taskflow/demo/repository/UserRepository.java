@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
@@ -29,4 +31,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
             SELECT u.id,u.name FROM users u WHERE LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) AND u.email LIKE LOWER(CONCAT('%','@', :searchDomain)) AND deleted = false
             """, nativeQuery = true, countQuery = "SELECT COUNT(*) FROM users u WHERE LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) AND u.email LIKE LOWER(CONCAT('%','@', :searchDomain)) AND deleted = false")
     Page<UserLightweightProjection> findLightUsers(Pageable pageable, @Param("search") String search, @Param("searchDomain") String searchDomain);
+
+    //Don't load tasks later. Load users and tasks together.
+    @Query("SELECT u FROM User u JOIN FETCH u.tasks")
+    List<User> findAllTasks();
 }

@@ -28,8 +28,12 @@ public class User {
 
     private boolean deleted = Boolean.FALSE;
 
-    @OneToMany(mappedBy ="user")
+    @OneToMany(mappedBy ="user",fetch = FetchType.LAZY)
     private List<Task> tasks;
+
+
+
+
 
     public boolean isDeleted() {
         return deleted;

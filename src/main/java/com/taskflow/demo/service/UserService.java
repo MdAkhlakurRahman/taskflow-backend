@@ -15,4 +15,5 @@ public interface UserService {
 
     Page<UserLightweightProjection> getAllLightUsers(Pageable pageable, String search, String searchDomain);
     User onboardUser(User user);
+    void getAllUsersTasks();
 }

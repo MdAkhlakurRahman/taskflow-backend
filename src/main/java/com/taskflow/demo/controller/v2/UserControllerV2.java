@@ -16,6 +16,7 @@ import com.taskflow.demo.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +74,6 @@ public class UserControllerV2 {
                                                                        @RequestParam(required = false) String searchDomain){
         return ResponseEntity.ok(userService.getAllLightUsers(pageable,search,searchDomain));
     }
-
 
 
     @GetMapping("/{id}")

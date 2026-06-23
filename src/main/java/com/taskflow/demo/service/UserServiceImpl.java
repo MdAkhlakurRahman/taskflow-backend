@@ -8,6 +8,9 @@ import com.taskflow.demo.projection.UserLightweightProjection;
 import com.taskflow.demo.repository.AuditEventRepository;
 import com.taskflow.demo.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +43,10 @@ public class UserServiceImpl implements UserService {
 //            return userCreated;
 //    }
 
+    @Cacheable(value = "users", key = "#id")
     @Override
     public User getUserById(Long id) {
+        log.info("Loading user {} from database", id);
         return userRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("User lookup failed. User id={} not found", id);
@@ -71,7 +76,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findLightUsers(pageable, search, searchDomain);
     }
 
-
+    @CachePut(value = "users", key = "#id")
     @Override
     public User updateUser(Long id, User user) {
         User existingUser = userRepository.findById(id)
@@ -86,6 +91,7 @@ public class UserServiceImpl implements UserService {
         return updatedUser;
     }
 
+    @CacheEvict(value = "users", key = "#id")
     @Override
     public void deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> {

@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -18,7 +19,10 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Table(name = "users")
 @SQLDelete(sql = "UPDATE users SET deleted=true WHERE id=? ")
 @Where(clause = "deleted=false")
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
